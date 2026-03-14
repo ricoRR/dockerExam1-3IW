@@ -1,0 +1,12 @@
+/php/.env
+/php/.env.backup
+/php/.phpunit.result.cache
+/php/auth.json
+/php/node_modules
+/php/public/build
+/php/public/hot
+/php/public/storage
+/php/storage/*.key
+/php/vendor
+/php/.idea
+/php/.vscode

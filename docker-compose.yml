@@ -1,0 +1,90 @@
+services:
+  laravel1:
+    container_name: laravel1
+    build:
+      context: .
+      dockerfile: dockerfile
+    volumes:
+      - ./php:/var/www
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 9000 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    networks:
+      - laravel1
+  laravel2:
+    container_name: laravel2
+    build:
+      context: .
+      dockerfile: dockerfile-laravel2
+    depends_on:
+      db:
+        condition: service_started
+      laravel1:
+        condition: service_healthy
+    volumes:
+      - ./php:/var/www
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 9000 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    networks:
+      - laravel2
+
+  nginx1:
+    container_name: server_1
+    image: nginx
+    depends_on:
+      laravel1:
+        condition: service_healthy
+    ports:
+      - "${NGINX1_PORT}:80"
+    volumes:
+      - ./nginx/server1.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./php:/var/www
+    networks:
+      - laravel1
+
+  nginx2:
+    container_name: server_2
+    image: nginx
+    depends_on:
+      laravel2:
+        condition: service_healthy
+    ports:
+      - "${NGINX2_PORT}:80"
+    volumes:
+      - ./nginx/server2.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./php:/var/www
+    networks:
+      - laravel2
+
+  db:
+    container_name: mysql
+    image: mysql:8.4
+    ports:
+      - "${MYSQL_PORT}:3306"
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    networks:
+      - laravel1
+      - laravel2
+
+networks:
+  laravel1:
+  laravel2:
+
+volumes:
+  mysql_data:

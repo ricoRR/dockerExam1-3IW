@@ -1,0 +1,40 @@
+FROM php:8.1-fpm
+
+WORKDIR /var/www
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    nodejs \
+    npm \
+    netcat-openbsd \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    && rm -rf /var/lib/apt/lists/*
+ 
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+       pdo_mysql \
+       zip \
+       gd
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+COPY ./php  .
+
+
+
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 775 storage bootstrap/cache
+
+COPY ./boot.sh /usr/local/bin/boot.sh
+RUN chmod +x /usr/local/bin/boot.sh
+
+
+EXPOSE 9000
+
+ENTRYPOINT ["/usr/local/bin/boot.sh"]

@@ -1,0 +1,7 @@
+.git
+.env
+php/.git
+php/.env
+php/vendor
+php/node_modules
+php/public/build

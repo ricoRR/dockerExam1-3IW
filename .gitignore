@@ -1,5 +1,3 @@
-/php/.env
-/php/.env.backup
 /php/.phpunit.result.cache
 /php/auth.json
 /php/node_modules

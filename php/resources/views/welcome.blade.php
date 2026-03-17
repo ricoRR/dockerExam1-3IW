@@ -21,7 +21,7 @@
 
 <body class="antialiased">
     @php
-    $serverLabel = request()->server('APP_SERVER_LABEL', 'Serveur inconnu');
+    $serverLabel = request()->server('APP_SERVER_LABEL');
     @endphp
     <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">
         @if (Route::has('login'))
